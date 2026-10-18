@@ -1,0 +1,14 @@
+resource_id: qwen3-8-27b-halo
+name: Qwen3.8-27B (Halo)
+icon: https://raw.githubusercontent.com/aldmbmtl/Terra-Spark-Kit/main/plugins/qwen3-8-27b-halo/assets/logo.png
+description: Pre-configured Qwen/Qwen3.8-27B-FP8 (FP8) on plain vLLM with ROCM — the Qwen3.8 27B hybrid Mamba+Attention model, tuned for the AMD Ryzen AI Halo.
+category: AI
+tags:
+  - llm
+  - inference
+  - qwen
+  - rocm
+  - amd
+  - halo
+  - cluster-level
+fields: []

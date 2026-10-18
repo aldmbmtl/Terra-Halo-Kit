@@ -1,0 +1,15 @@
+resource_id: nemotron-nano-halo
+name: Nemotron 3 Nano (Halo)
+icon: https://raw.githubusercontent.com/aldmbmtl/Terra-Spark-Kit/main/plugins/nemotron-nano-halo/assets/logo.png
+description: Pre-configured NVIDIA Nemotron 3 Nano 30B-A3B (NVFP4 QAD) on plain vLLM with ROCM — official NVIDIA Spark playbook model, tuned for the AMD Ryzen AI Halo.
+category: AI
+tags:
+  - llm
+  - inference
+  - nemotron
+  - spark
+  - rocm
+  - amd
+  - halo
+  - cluster-level
+fields: []

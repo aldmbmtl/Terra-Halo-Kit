@@ -1,0 +1,15 @@
+resource_id: qwen3-6-halo
+name: Qwen3.6 35B-A3B (Halo)
+icon: https://raw.githubusercontent.com/aldmbmtl/Terra-Spark-Kit/main/plugins/qwen3-6-halo/assets/logo.png
+description: Pre-configured Qwen/Qwen3.6-35B-A3B-FP8 (FP8) on plain vLLM with ROCM — the most widely used open LLM family, tuned for the AMD Ryzen AI Halo.
+category: AI
+tags:
+  - llm
+  - inference
+  - qwen
+  - spark
+  - rocm
+  - amd
+  - halo
+  - cluster-level
+fields: []

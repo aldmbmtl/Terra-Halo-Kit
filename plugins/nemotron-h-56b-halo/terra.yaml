@@ -1,0 +1,15 @@
+resource_id: nemotron-h-56b-halo
+name: Nemotron-H 56B (Halo)
+icon: https://raw.githubusercontent.com/aldmbmtl/Terra-Spark-Kit/main/plugins/nemotron-h-56b-halo/assets/logo.png
+description: Pre-configured Nemotron-H-56B-Base-8K on plain vLLM with ROCM FP8 dynamic quantization — hybrid Mamba-2 + 10 attention layers, 8K context, research-only license. AMD Ryzen AI Halo configuration.
+category: AI
+tags:
+  - llm
+  - inference
+  - nemotron
+  - nemotron-h
+  - rocm
+  - amd
+  - halo
+  - cluster-level
+fields: []

@@ -1,0 +1,15 @@
+resource_id: nemotron-halo
+name: Nemotron 3.5 Lightning (Halo)
+icon: https://raw.githubusercontent.com/aldmbmtl/Terra-Spark-Kit/main/plugins/nemotron-halo/assets/logo.png
+description: Pre-configured NVIDIA Nemotron 3.5 Lightning 30B-A3B (FP8) on plain vLLM with ROCM and DSpark speculative decoding — AMD Ryzen AI Halo configuration.
+category: AI
+tags:
+  - llm
+  - inference
+  - nemotron
+
+  - rocm
+  - amd
+  - halo
+  - cluster-level
+fields: []
