@@ -38,4 +38,4 @@ before proxying to vLLM (`:8000`).
 
 ## Memory Note
 
-The Halo's 160GB allocatable VRAM provides significant headroom over the DGX Spark's ~80GB. At 88Gi memory limit with 0.65 util (~79GB ceiling), there is ~81GB of overhead room for KV pool and other operations — compared to ~1GB margin on the Spark. This model fits comfortably one-at-a-time on Halo.
+The Halo's 160GB allocatable VRAM provides significant headroom over the AMD Halo's ~80GB. At 88Gi memory limit with 0.65 util (~79GB ceiling), there is ~81GB of overhead room for KV pool and other operations — compared to ~1GB margin on the Spark. This model fits comfortably one-at-a-time on Halo.

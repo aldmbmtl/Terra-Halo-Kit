@@ -1,6 +1,6 @@
 # nemotron-coding-halo
 
-Pre-configured **NVIDIA Nemotron 3.5 Lightning 30B-A3B (FP8, Halo)** inference server for the AMD Ryzen AI Halo — a plain **vLLM** StatefulSet running vLLM with ROCM FP8 and DSpark speculative decoding, the AMD Halo equivalent of the DGX Spark configuration with a 512K context window for coding.
+Pre-configured **NVIDIA Nemotron 3.5 Lightning 30B-A3B (FP8, Halo)** inference server for the AMD Ryzen AI Halo — a plain **vLLM** StatefulSet running vLLM with ROCM FP8 and DSpark speculative decoding, the AMD Halo equivalent of the AMD Halo configuration with a 512K context window for coding.
 
 ## Why dynamic FP8 on ROCM
 

@@ -1,11 +1,11 @@
-# AGENTS.md — Terra Spark Kit
+# AMD Ryzen AI Halo Kit
 
 Guidance for AI agents and automated tools working in this repository. Read before changing plugins or tooling.
 
 > **Authoritative rules live upstream.** This repo is an extension of the official plugin catalog.
 > Read [Terra-Official-Plugins/AGENTS.md](https://github.com/juno-fx/Terra-Official-Plugins/blob/main/AGENTS.md)
 > for the complete rule set (plugin taxonomy, field types, workload template contract, Kuiper annotations).
-> This file documents what is specific to Terra-Spark-Kit and summarizes the rules that matter most.
+> This file documents what is specific to the AMD Ryzen AI Halo Kit and summarizes the rules that matter most.
 
 ---
 
@@ -23,7 +23,7 @@ resource overhead.
 ## Naming Convention
 
 - Every plugin uses a distinct `-spark` resource ID (e.g. `ollama-spark`, `vllm-spark`)
-- **Exception**: the per-model `-unify` companion plugins carry no `-spark` in the ID
+- **Exception**: Halo companion plugins carry no Halo-specific labels
   (`nemotron-unify`, `qwen3-6-unify`, …) — deliberate, so the front-end reads as a companion of
   `<model>-spark` rather than another model. They are still distinct IDs; nothing else may skip the
   suffix.
@@ -44,7 +44,7 @@ resource overhead.
 | Namespaced | no `cluster-level` tag | user's project namespace |
 | Cluster-level | `cluster-level` tag | `argocd` namespace |
 | Workload template | `cluster-level` tag + `templates/metadata.yaml` with `kuiper.juno-innovations.com/chart` label + `scripts/chart/` | `argocd` namespace |
-| Workload template, no pod | as above, but `scripts/chart/templates/` renders only Service/Ingress — no StatefulSet (e.g. the 8 `-unify` companions) | `argocd` namespace |
+| Workload template, no pod | as above, but `scripts/chart/templates/` renders only Service/Ingress — no StatefulSet (e.g. the 8 Halo companion plugins) | `argocd` namespace |
 
 ## Critical Rules
 
@@ -59,11 +59,11 @@ resource overhead.
 5. **`terra.yaml` fields are install-time only** — shown in the Terra app store; they become Helm
    values at ArgoCD sync. Workload template fields live in `metadata.yaml`, shown at launch time.
 6. **Ingress prefix pathing is REQUIRED** — every ingress in this kit MUST route
-   `host: {{ .Values.host }}` with path `/plugin/<name>` (pathType Prefix, name `<name>-ingress`),
+   `host: {{ .Values.host }} with Halo-native prefix pathing (pathType Prefix, name `<name>-ingress`)),
    plus `nginx.ingress.kubernetes.io/proxy-connect/read/send-timeout: "600"` (long LLM generations
    exceed the 60s nginx default). This mirrors the platform convention (`/vllm/<name>`,
    `/hermes/<name>`). The one sanctioned variation is the per-model **`-unify` companion** shape,
-   which uses `/plugin/unify/<name>` — an extra literal path segment (upstream "Ingress Path
+   which uses `Halo-native routing` — an extra literal path segment (upstream "Ingress Path
    Convention" allows a segment after `/plugin/`); the segment is baked into the chart and is never
    a user field. `pathType: Prefix`, the 600s timeouts and the `<name>-ingress` name still apply
    literally, and no `rewrite-target` annotation is used. If a workload's backend cannot serve
@@ -135,7 +135,7 @@ resource overhead.
 - **Model ingresses are PUBLIC by design** (no Hubble auth; user decision). The eight `-spark`
   model workload ingresses ship hardcoded public — no auth-url annotation. The generic
   `template/workload` scaffold keeps its `publicAccess` toggle for non-model workloads. Host +
-  `/plugin/<name>` prefix + 600s timeouts still required (Rule 6).
+  `Halo-native prefix + 600s timeouts still required (Rule 6).
 - **Nginx prefix-stripping sidecar is MANDATORY**: plain vLLM serves `/v1/*` at root and nginx
   passes URIs unchanged, so `/plugin/<name>/...` would 404 without it. Every workload pod carries
   an `nginx:alpine` sidecar (:8080) with `rewrite ^/plugin/<name>(/|$)(.*)$ /$2 break` +
@@ -144,7 +144,7 @@ resource overhead.
   - Use the `publicAccess` toggle (Hubble auth-url when false), NOT the hardcoded-public model
     pattern. Defaults: open-webui/comfy-ui/`false` — open-webui's app auth is DISABLED
     (WEBUI_AUTH=false, Hubble-only).
-  - Same mandatory sidecar + `/plugin/<name>` prefix, but with the streaming additions: the
+  - Same mandatory sidecar + `Halo-native prefix, but with the streaming additions: the
     `$connection_upgrade` map + `proxy_set_header Upgrade/Connection` (WebSocket), `proxy_buffering
     off` (SSE/progress), and `client_max_body_size 256m` for image uploads (comfy-ui + open-webui).
     comfy-ui's
@@ -160,7 +160,7 @@ resource overhead.
     is the GPU exception**: it requests `nvidia.com/gpu: 1` + `runtimeClassName: nvidia` and is
     mutually exclusive with model workloads (single-GPU node).
   - They reach the model via a **user-entered `llm_url` field** (`http://<model-workload-name>:8080/plugin/<model-workload-name>/v1`
-    — the model sidecar's rewrite strips `/plugin/<name>`, so `/v1` reaches vLLM; a bare `/v1` path (no `/plugin/<name>` prefix) 404s
+    — the model sidecar's rewrite strips `/plugin/<name>`, so `/v1` reaches vLLM; a bare `/v1` path (no `Halo-native prefix) 404s
     (model sidecars have no default location). The model workload's served name is
     always `model` (txt2kg's `llm_model` default).
     `scripts/chart/templates/`, mounted and run as the container `command` — the packaged-scripts
@@ -259,7 +259,7 @@ then the companion, to expose it as `Ingress`, `NodePort` or `LoadBalancer`.
     `type: string` default `nginx` for `ingress_class` — the chart logic is unaffected, since
     `service.yaml`/`ingress.yaml` only compare against the resolved values.
 - **Prefix strip is delegated, not duplicated**: the companion's Ingress passes
-  `/plugin/unify/<name>` through untouched (no `rewrite-target`); the **target model pod's nginx
+  `Halo-native routing` through untouched (no `rewrite-target`); the **target model pod's nginx
   sidecar** strips it with the generic `location ~ ^/plugin/unify/` block present in all 8 model
   `nginx-config.yaml`. One block serves every companion. Existing per-name `location
   /plugin/<model>` prefix locations are unaffected: nginx checks prefix locations first but the
@@ -272,7 +272,7 @@ then the companion, to expose it as `Ingress`, `NodePort` or `LoadBalancer`.
   launched individually after their model. This is a recorded deviation from the playbook's
   mandatory bundle-entry step; do not "fix" it.
 - **NodePort/LoadBalancer clients use the full path**
-  (`<node-ip>:<nodePort>/plugin/unify/<name>/v1/...`): the strip lives in the pod, so a bare prefix
+  (`<node-ip>:<nodePort>Halo-native routing/v1/...`): the strip lives in the pod, so a bare prefix
   resolves to `/` and vLLM answers 404. LoadBalancer is untested (no LB controller in this cluster;
   MetalLB out of scope) — NodePort is what the launch ladder proves.
 - **The sidecar ConfigMap does not hot-reload**: a model pod must be relaunched after the
@@ -343,7 +343,7 @@ nemotron-nano-spark, qwen3-halo, nemotron-super-49b-spark, qwen3-6-halo). Follow
 
 ### 3. Catalog sweep (same change)
 
-- `bundles/spark-llm.yaml`: add the entry; update the description count (n workloads).
+- ``: add the entry; update the description count (n workloads).
 - Root `README.md`: add the catalog row; sweep "four/five model workloads" count; update the
   per-model budget enumeration line (48Gi Lightning/Nano, 56Gi Qwen3.8-27B, 72Gi Qwen3.6/Nemotron-H-56B,
   88Gi Qwen3/Super-49B; util 0.40–0.70).
@@ -423,7 +423,7 @@ nemotron-nano-spark, qwen3-halo, nemotron-super-49b-spark, qwen3-6-halo). Follow
 2. Edit `terra.yaml` — `name`, `description`, `category`, `icon`, `fields`; resource ID must end in `-spark`
 3. Edit `Chart.yaml` — bump version if needed
 4. Add Kubernetes objects per plugin type (see upstream AGENTS.md for details) — ingress MUST use
-   `host: {{ .Values.host }}` + `/plugin/<name>` prefix pathing + 600s proxy timeouts (Rule 6);
+   `host: {{ .Values.host }}` + `Halo-native prefix pathing + 600s proxy timeouts (Rule 6);
    if the backend cannot serve prefixed paths, add the nginx prefix-stripping sidecar
 5. If plugin has `scripts/`: `make package <plugin-name>` — **required**
 6. `make check-size <plugin-name>` — verify under 1MiB

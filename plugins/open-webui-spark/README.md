@@ -1,6 +1,6 @@
 # open-webui-spark
 
-**Open WebUI** chat frontend for the DGX Spark — a CPU-only companion workload that points at any
+**Open WebUI** chat frontend for the AMD Halo — a CPU-only companion workload that points at any
 kit vLLM model workload. Source playbook:
 [NVIDIA/dgx-spark-playbooks — open-webui](https://github.com/NVIDIA/dgx-spark-playbooks/blob/main/nvidia/open-webui).
 

@@ -44,4 +44,4 @@ before proxying to vLLM (`:8000`).
 
 ## Notes on FP8 Conversion
 
-The Nemotron NVFP4 QAD format is NVIDIA-specific and does not exist natively on HF. This Halo configuration runs the model in fp8 quantization mode with the ROCM vLLM container. The speed gain from FP8 quantization is significant (2-3x faster decode), with acceptable quality loss for interactive use. For production workloads requiring maximum accuracy, the NVIDIA DGX Spark original (BF16/NVFP4 QAD) is recommended.
+The Nemotron NVFP4 QAD format is NVIDIA-specific and does not exist natively on HF. This Halo configuration runs the model in fp8 quantization mode with the ROCM vLLM container. The speed gain from FP8 quantization is significant (2-3x faster decode), with acceptable quality loss for interactive use. For production workloads requiring maximum accuracy, the NVIDIA AMD Halo original (BF16/NVFP4 QAD) is recommended.

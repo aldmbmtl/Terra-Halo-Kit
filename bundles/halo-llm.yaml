@@ -1,0 +1,28 @@
+resource_id: halo-llm
+name: AMD Halo LLM Stack
+icon: https://raw.githubusercontent.com/aldmbmtl/Terra-Halo-Kit/main/bundles/assets/logo.png
+description: Local LLM stack for the AMD Ryzen AI Halo — eight pre-configured plain-vLLM model workloads (Nemotron 3.5 Lightning, Nemotron 3 Nano, Qwen3-30B-A3B, Qwen3.6-35B-A3B, Nemotron Super 49B, Qwen3.8-27B, Nemotron Coding, Nemotron-H 56B), each with tuned unified-memory budgets and prefix-stripping ingress.
+category: Bundle
+tags:
+  - halo
+  - llm
+  - inference
+  - cluster-level
+fields: []
+plugins:
+  - plugin: Nemotron 3.5 Lightning
+    name: nemotron-halo
+  - plugin: Nemotron 3 Nano
+    name: nemotron-nano-halo
+  - plugin: Qwen3 30B-A3B
+    name: qwen3-halo
+  - plugin: Qwen3.6 35B-A3B
+    name: qwen3-6-halo
+  - plugin: Nemotron Super 49B
+    name: nemotron-super-49b-halo
+  - plugin: Qwen3.8-27B
+    name: qwen3-8-27b-halo
+  - plugin: Nemotron Coding
+    name: nemotron-coding-halo
+  - plugin: Nemotron-H 56B
+    name: nemotron-h-56b-halo

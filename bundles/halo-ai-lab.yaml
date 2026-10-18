@@ -1,0 +1,19 @@
+resource_id: halo-ai-lab
+name: AMD Halo AI Lab
+icon: https://raw.githubusercontent.com/aldmbmtl/Terra-Halo-Kit/main/bundles/assets/logo.png
+description: Companion workloads for the AMD Ryzen AI Halo — Open WebUI chat frontend, ComfyUI image generation, and txt2kg knowledge-graph app. Pair any of them with a model workload from the AMD Halo LLM Stack bundle (llm_url fields point at the launched model).
+category: Bundle
+tags:
+  - halo
+  - webui
+  - image
+  - knowledge-graph
+  - cluster-level
+fields: []
+plugins:
+  - plugin: Open WebUI (Halo)
+    name: open-webui-spark
+  - plugin: ComfyUI (Halo)
+    name: comfy-ui-spark
+  - plugin: txt2kg (Halo)
+    name: txt2kg-halo

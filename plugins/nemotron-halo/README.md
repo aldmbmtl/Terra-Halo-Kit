@@ -1,6 +1,6 @@
 # nemotron-halo
 
-Pre-configured **NVIDIA Nemotron 3.5 Lightning 30B-A3B (FP8)** inference server for the AMD Ryzen AI Halo — a plain **vLLM** StatefulSet running vLLM with ROCM FP8 support and DSpark speculative decoding. This is the AMD Halo equivalent of NVIDIA's published DGX Spark configuration.
+Pre-configured **NVIDIA Nemotron 3.5 Lightning 30B-A3B (FP8)** inference server for the AMD Ryzen AI Halo — a plain **vLLM** StatefulSet running vLLM with ROCM FP8 support and DSpark speculative decoding. This is the AMD Halo equivalent of NVIDIA's published AMD Halo configuration.
 
 **Note on FP8 conversion**: The original NVFP4 checkpoints are NVIDIA-specific. This Halo configuration runs the model in fp8 quantization mode via `--quantization fp8` with the `rocm/vllm:latest` container. Quality is preserved from the original FP8-pretrained model (arXiv 2504.03624).
 
@@ -25,7 +25,7 @@ Ingress: `/{{ .Release.Namespace }}/<name>` prefix, routed through an in-pod **n
 before proxying to vLLM (`:8000`).
 
 Config source: [vLLM blog — Nemotron 3.5 Lightning Day-0](https://vllm.ai/blog/2026-08-10-nemotron-3-5-lightning-vllm),
-"Local Deployment on DGX Spark" section. **Hardware validation pending** — no GB10 in CI.
+"Local Deployment on AMD Halo" section. **Hardware validation pending** — no GB10 in CI.
 
 ## Fields
 
@@ -48,4 +48,4 @@ Config source: [vLLM blog — Nemotron 3.5 Lightning Day-0](https://vllm.ai/blog
 
 ## Notes on FP8 Conversion
 
-The Nemotron NVFP4 format is NVIDIA-specific and does not exist natively on HF. This Halo configuration runs the model in fp8 quantization mode with the ROCM vLLM container. The speed gain from FP8 quantization is significant (2-3x faster decode), with acceptable quality loss for interactive use. For production workloads requiring maximum accuracy, the NVIDIA DGX Spark original (BF16/NVFP4) is recommended.
+The Nemotron NVFP4 format is NVIDIA-specific and does not exist natively on HF. This Halo configuration runs the model in fp8 quantization mode with the ROCM vLLM container. The speed gain from FP8 quantization is significant (2-3x faster decode), with acceptable quality loss for interactive use. For production workloads requiring maximum accuracy, the NVIDIA AMD Halo original (BF16/NVFP4) is recommended.

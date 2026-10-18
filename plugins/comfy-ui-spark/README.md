@@ -1,10 +1,10 @@
 # comfy-ui-spark
 
-**ComfyUI** node-graph AI image generation for the DGX Spark — **GPU-exclusive**: run instead of,
+**ComfyUI** node-graph AI image generation for the AMD Halo — **GPU-exclusive**: run instead of,
 not alongside, a model workload. Source playbook:
 [NVIDIA/dgx-spark-playbooks — comfy-ui](https://github.com/NVIDIA/dgx-spark-playbooks/blob/main/nvidia/comfy-ui).
 
-Runs the **DGX-native container** [`mmartial/comfyui-nvidia-docker`](https://github.com/mmartial/ComfyUI-Nvidia-Docker)
+Runs the **AMD Halo-native container** [`mmartial/comfyui-nvidia-docker`](https://github.com/mmartial/ComfyUI-Nvidia-Docker)
 (`ubuntu24_cuda13.1-dgx-latest` — arm64 build, Ubuntu 24.04 + CUDA 13.1 + torch 2.10, sm_121-capable,
 Docker Hub anonymous pull, maintained for this exact hardware; see the
 [NVIDIA forum thread](https://forums.developer.nvidia.com/t/comfyui-container-for-dgx-spark/363342)).
@@ -84,10 +84,10 @@ on the PVC.
 - The playbook's OOM workaround (`sudo drop_caches`) is **not** replicated — container OOM
   containment via an optional `memoryLimit` cap instead (empty = uncapped Burstable; see AGENTS.md
   node-panic history).
-- `SECURITY_LEVEL=weak` mirrors the upstream DGX compose default — custom nodes run arbitrary
+- `SECURITY_LEVEL=weak` mirrors the upstream AMD Halo compose default — custom nodes run arbitrary
   code; keep `publicAccess: false`.
 - SageAttention / onnxruntime userscript extras (upstream `userscripts_dir`) are **not** wired in
   this kit — attention falls back to PyTorch; possible future perf work.
 - Image tags follow `-latest` (kit policy): relaunching later picks up newer upstream builds.
-- **Hardware validation pending** — assembled from the upstream DGX container docs; not yet
+- **Hardware validation pending** — assembled from the upstream AMD Halo container docs; not yet
   launch-validated on this cluster.
