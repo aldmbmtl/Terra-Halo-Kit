@@ -18,7 +18,6 @@ spec:
     spec:
       nodeSelector:
         juno-innovations.com/amd-halo: "true"
-      runtimeClassName: ""
       containers:
         - name: vllm
           image: {{ .Values.image }}
@@ -141,4 +140,4 @@ spec:
         - name: dri
           hostPath:
             path: /dev/dri/card0
-            type: Device
+            type: ""
