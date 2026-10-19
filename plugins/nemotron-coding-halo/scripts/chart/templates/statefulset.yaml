@@ -94,6 +94,8 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 10
+          securityContext:
+            privileged: true
           livenessProbe:
             httpGet:
               path: /health
