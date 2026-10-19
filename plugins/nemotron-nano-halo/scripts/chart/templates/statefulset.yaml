@@ -34,6 +34,9 @@ spec:
                   name: {{ .Values.name }}-hf-token
                   key: HF_TOKEN
             {{- end }}
+          command:
+            - vllm
+            - serve
           args:
             - --model
             - {{ .Values.model }}
