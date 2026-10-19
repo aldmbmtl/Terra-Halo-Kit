@@ -112,6 +112,8 @@ spec:
               mountPath: /models
             - name: dri
               mountPath: /dev/dri
+            - name: kfd
+              mountPath: /dev/kfd
         - name: nginx
           image: nginx:alpine
           imagePullPolicy: IfNotPresent
@@ -139,4 +141,8 @@ spec:
         - name: dri
           hostPath:
             path: /dev/dri/card0
+            type: ""
+        - name: kfd
+          hostPath:
+            path: /dev/kfd
             type: ""
