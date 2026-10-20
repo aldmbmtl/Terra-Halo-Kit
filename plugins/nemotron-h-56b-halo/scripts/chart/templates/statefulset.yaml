@@ -125,7 +125,7 @@ spec:
             name: {{ .Values.name }}-nginx-config
         - name: dri
           hostPath:
-            path: /dev/dri/card0
+            path: /dev/dri
             type: ""
         - name: kfd
           hostPath:
