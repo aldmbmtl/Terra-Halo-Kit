@@ -8,7 +8,7 @@ metadata:
     juno-innovations.com/workload: "Server"
 data:
   chart: "{{ .Release.Name }}-scripts-configmap"
-  description: "Nemotron 3.5 Lightning 30B-A3B NVFP4 — pre-configured vLLM server with DSpark speculative decoding (NVIDIA DGX Spark reference config)"
+  description: "Nemotron 3.5 Lightning 30B-A3B BF16 — pre-configured vLLM (ROCm) server with a 512K context window for coding (AMD Ryzen AI Halo config)"
   fields: |
     - name: icon
       description: "Icon shown for the workload"
@@ -29,12 +29,12 @@ data:
       description: "Memory request = limit (Guaranteed QoS), footprint-derived (weights + KV pool + overhead). Lowering risks container OOM under load; raising reduces node headroom."
       type: string
       required: false
-      default: "48Gi"
+      default: "76Gi"
     - name: gpu_memory_utilization
-      description: "Fraction of device memory for weights + KV cache: ~51GB ceiling contains the ~39GB CUDA footprint (18GB NVFP4 + DSpark + 14GB KV pool at 512K ctx)."
+      description: "Fraction of device memory (~101GB on the Radeon 8060S) for weights + KV cache: ~73GB ceiling contains the ~66GB BF16 weights + ~2GB KV pool at 512K ctx + activations."
       type: string
       required: false
-      default: "0.40"
+      default: "0.72"
     - name: hf_token
       description: "HuggingFace access token (NVIDIA models require license acceptance; also used for private repos)."
       type: string

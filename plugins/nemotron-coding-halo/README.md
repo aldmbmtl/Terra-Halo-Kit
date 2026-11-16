@@ -1,47 +1,76 @@
 # nemotron-coding-halo
 
-Pre-configured **NVIDIA Nemotron 3.5 Lightning 30B-A3B (FP8, Halo)** inference server for the AMD Ryzen AI Halo — a plain **vLLM** StatefulSet running vLLM with ROCM FP8 and DSpark speculative decoding, the AMD Halo equivalent of the AMD Halo configuration with a 512K context window for coding.
+Pre-configured **NVIDIA Nemotron 3.5 Lightning 30B-A3B (BF16)** inference server for the AMD Ryzen AI Halo — a plain **vLLM** StatefulSet on the ROCm build of vLLM, with a 512K context window for coding.
 
-## Why dynamic FP8 on ROCM
+This is the general Nemotron 3.5 Lightning model with coding-oriented settings (512K context, one sequence, `qwen3_coder` tool parser). There is no separate coding checkpoint.
 
-The original NVFP4 checkpoint is served with load-time dynamic FP8 quantization (`--quantization fp8`), which halves the in-RAM weight footprint from ~52.5Gi to ~26Gi while preserving the 512K context window capability. Quality-safe: the model was FP8-pretrained. No custom image build needed — uses `rocm/vllm:latest`.
+## Why BF16 on the Halo
+
+The Halo's GPU is a Radeon 8060S (`gfx1151`, Strix Halo). The ROCm build of vLLM has no FP8 linear kernel for it: the native ROCm kernel requires CDNA3+ (`gfx942`/`gfx950`) or RDNA4 (`gfx12x`), and the AITER kernels are gated to CDNA3+ regardless of `VLLM_ROCM_USE_AITER`. That rules out:
+
+- the **NVFP4** checkpoint — its Mamba projection layers are FP8-quantized (fails at load with `Failed to find a kernel that can implement the ScaledMM linear layer`);
+- load-time **`--quantization fp8`** — it needs the same missing kernel.
+
+The full-precision BF16 checkpoint needs no quantized kernel, so it is the one that loads on this hardware.
 
 ## Configuration (locked)
 
 | Setting | Value |
 |---------|-------|
-| Model | `nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4` |
-| Draft model (DSpark) | `nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4-DSpark` |
+| Model | `nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16` (61.3 GiB on disk) |
 | Image | `rocm/vllm:latest` |
-| Engine flags | kv cache fp8 · FLASHINFER · Mamba cache tuning · prefix caching · auto-tool-choice (qwen3_coder) · --quantization fp8 |
-| Context | **524288 tokens (512K — 4× original 131072; KV pool identical to original, footprint ~39Gi unchanged; gpu_memory_utilization: 0.40)** |
-| Concurrency | **1 sequence** (KV pool 524288 × 1 = 131072 × 4; sufficient for single long coding completions) |
-| GPU | 1 × AMD Radeon iGPU (via `/dev/dri/card0` direct mount), no runtime class needed |
-| Memory limit | 48Gi (container OOM, never host) — footprint ~39Gi (weights + KV + overhead), fits Halo's 160GB VRAM |
+| Engine flags | kv cache fp8 · Mamba backend `triton` · Mamba SSM cache float16 · `--mamba-cache-mode align` · prefix caching · `--reasoning-parser nemotron_v3` · auto-tool-choice (`qwen3_coder`) |
+| Speculative decoding | None. DSpark is not configured: the only published draft model is NVFP4 (W4A16) and is untested on ROCm |
+| Context | **524288 tokens (512K)** — the model supports up to 1M |
+| Concurrency | **1 sequence** — sufficient for single long coding completions |
+| GPU | 1 × AMD Radeon 8060S iGPU (hostPath `/dev/kfd` + `/dev/dri`, privileged), no runtime class |
+| Node | `nodeSelector: juno-innovations.com/amd-halo: "true"` |
+| Memory | 76Gi request = limit (Guaranteed QoS) |
 
 Ingress: `/{{ .Release.Namespace }}/<name>` prefix, routed through an in-pod **nginx sidecar** that strips the prefix before proxying to vLLM (`:8000`).
 
-Larger Context for Coding: This plugin provides 512K token context windows for code completions, entire codebases, and multi-file refactoring. The KV pool (524288 × 1 = 524288) is identical to the original 131072 × 4, so memory footprint and gpu_memory_utilization (0.40) are unchanged. Only 1 concurrent sequence — sufficient for single long coding completions (one at a time).
+### Flags that differ from NVIDIA's published recipe
 
-Hardware validation pending — this is an assembled config (vLLM ROCM support + the model's FP8-pretrained claim), not NVIDIA-published Spark playbook. First launch ladder: node stays Ready, 2/2 pods, `/v1/models` answers `id: "model"`, peak container memory < 48Gi.
+NVIDIA's model card recipe uses `--mamba-backend flashinfer`, `--enable-mamba-cache-stochastic-rounding` and `--mamba-cache-philox-rounds 5`. None of these work on ROCm: FlashInfer is CUDA-only and is not in the image, and vLLM rejects stochastic rounding off CUDA. `--mamba-ssm-cache-dtype float16` is kept without stochastic rounding; if long-context output degrades, drop that flag so the model's own `float32` default applies.
+
+## Memory footprint
+
+| Component | Size |
+|-----------|------|
+| Weights (BF16) | ~66 GB |
+| KV pool (6 attention layers × 2 KV heads × 128 head dim × 524288 tokens × 1 seq, fp8) | ~1.6 GB |
+| Activations + Mamba state | ~5 GB |
+| GPU ceiling (`gpu_memory_utilization` 0.72 × ~101 GB) | ~73 GB |
+| Container `memory` (request = limit) | 76Gi (~81.6 GB) |
+
+The Halo has unified memory: GPU allocations come out of system RAM (~125Gi total). 76Gi is sized so the GPU ceiling plus the process's own RAM sits below the limit, and so the pod still schedules next to the node's other workloads. Whether GPU allocations are charged to the container's memory cgroup on this platform is not verified.
 
 ## Fields
 
-- `gpu_memory_utilization` (default `0.40` — ceiling sized to the ~39Gi footprint, adjusted for ROCM FP8). Enables 512K ctx with seq=1.
+- `gpu_memory_utilization` (default `0.72` — ~73 GB ceiling on the ~101 GB device).
 - `served_model_name` (default `model`) — the model string clients send in API requests (the OpenAI-compatible `model` field). Standardized across all kit workloads.
-
-- **Resources**: `cpu` and `memory` request = limit (Guaranteed QoS). Defaults 2 CPU / 48Gi. Guaranteed reserves the full request — 48Gi + 48Gi fits; two large models (88Gi+) cannot co-schedule on 117.5Gi, so the node fits one large model at a time (second pod stays Pending until the first is deleted).
-- `hf_token` (optional) — covers future gating + private repos.
-- `storage_class` (required) / `storage_size` (default 100Gi) — model cache volume. `local-path` recommended.
+- **Resources**: `cpu` and `memory` request = limit (Guaranteed QoS). Defaults 2 CPU / 76Gi. One model at a time on the node.
+- `hf_token` (optional) — the checkpoint is not gated today; covers future gating + private repos.
+- `storage_class` (required) / `storage_size` (default 100Gi) — model cache volume.
 
 ## Prerequisites
 
-- ROCM 10.0+ installed with AMD GPU drivers (no nvidia-gpu-operator needed). GPU accessible via `/dev/dri/card0` direct mount.
-- First launch downloads the NVFP4 + DSpark checkpoints (~18GB) into the model volume — the 48Gi limit contains the download transient.
-- **Slow first boot**: download ~18GB weights then FP8-quantize at load time with DSpark speculative decoding. Restarts resume from cached download.
+- AMD GPU drivers on the host with `/dev/kfd` and `/dev/dri` present (no nvidia-gpu-operator needed).
+- Node labelled `juno-innovations.com/amd-halo=true`.
+- **Slow first boot**: downloads ~61 GiB of weights into the model volume, then loads them. Restarts resume from the cached download. The startup probe allows 50 minutes (threshold 300).
+
+## License
+
+The model is released under the **OpenMDW-1.1** license (not Apache-2.0). NVIDIA positions the BF16 release primarily for customization and recommends the NVFP4 release for deployment; BF16 is used here because NVFP4 cannot load on this GPU.
+
+## Validation status
+
+Hardware validation pending — this is an assembled config, not an NVIDIA-published recipe. Launch ladder: node stays Ready, pod 2/2, `/v1/models` answers `id: "model"` with `max_model_len` 524288, peak container memory < 76Gi.
 
 ## Known failure signatures
 
-- **exit 2 fast** = flag removed on `:latest` drift (first suspect: `--quantization fp8` / `--mamba-cache-mode` / `--enable-auto-tool-choice`). Do not drop `--quantization fp8` to recover — bf16 (~39Gi) does not fit; repackage with the updated image instead.
-- CrashLoopBackOff 401 = `HF_TOKEN` wiring (not gated today, but keep the secret key named `HF_TOKEN`).
-- **Startup hang** = missing `--mamba-cache-mode align` or `--reasoning-parser nemotron_v3` flags. Verify statefulset args.
+- `Failed to find a kernel that can implement the ScaledMM linear layer` = an FP8 path was re-introduced (NVFP4/FP8 checkpoint or `--quantization fp8`). Not supported on `gfx1151`. If it appears with the BF16 checkpoint, the suspect is `--kv-cache-dtype fp8`; change it to `auto`.
+- `Stochastic rounding for Mamba cache is only supported on NVIDIA CUDA platforms` = `--enable-mamba-cache-stochastic-rounding` was re-added.
+- `Invalid repository ID or local directory specified: ''` = a `--speculative_config.model` arg rendered empty.
+- **exit 2 fast** = flag removed on `:latest` drift.
+- CrashLoopBackOff 401 = `HF_TOKEN` wiring (keep the secret key named `HF_TOKEN`).

@@ -1,7 +1,7 @@
 resource_id: nemotron-coding-halo
 name: Nemotron Coding (Halo)
 icon: https://raw.githubusercontent.com/aldmbmtl/Terra-Spark-Kit/main/plugins/nemotron-coding-halo/assets/logo.png
-description: Pre-configured NVIDIA Nemotron 3.5 Lightning 30B-A3B (FP8) on plain vLLM with ROCM — AMD Ryzen AI Halo configuration for coding workloads.
+description: Pre-configured NVIDIA Nemotron 3.5 Lightning 30B-A3B (BF16) on plain vLLM with ROCm, 512K context — AMD Ryzen AI Halo configuration for coding workloads.
 category: AI
 tags:
   - llm

@@ -15,7 +15,7 @@ The one deliberate exception is the per-model `-unify` companion set (see [AGENT
 | Plugin | Type | Category | Description | Docs |
 |--------|------|----------|-------------|------|
 | Nemotron 3.5 Lightning | Workload Template | AI | 30B-A3B NVFP4 on plain vLLM (pinned v0.27.1) with DSpark speculative decoding — AMD Ryzen AI Halo configuration | [README](plugins/nemotron-halo/README.md) |
-| Nemotron Coding (Halo) | Workload Template | AI | Nemotron 3.5 Lightning 30B-A3B NVFP4 on plain vLLM with DSpark speculative decoding and 512K context window for coding — 4× ctx expansion, Guaranteed QoS preserved. | [README](plugins/nemotron-coding-halo/README.md) |
+| Nemotron Coding (Halo) | Workload Template | AI | Nemotron 3.5 Lightning 30B-A3B BF16 on plain vLLM (ROCm) with a 512K context window for coding — AMD Ryzen AI Halo configuration, Guaranteed QoS. | [README](plugins/nemotron-coding-halo/README.md) |
 | Nemotron 3 Nano | Workload Template | AI | 30B-A3B NVFP4 (QAD) on plain vLLM — AMD Ryzen AI Halo playbook model | [README](plugins/nemotron-nano-halo/README.md) |
 | Qwen3 30B-A3B (Halo) | Workload Template | AI | Qwen3-30B-A3B-Instruct-2507 FP8 on plain vLLM with ROCM, 128K context | [README](plugins/qwen3-halo/README.md) |
 | Qwen3.6 35B-A3B (Halo) | Workload Template | AI | Qwen3.6-35B-A3B-FP8 on plain vLLM with ROCM, 128K context, 4 seqs | [README](plugins/qwen3-6-halo/README.md) |

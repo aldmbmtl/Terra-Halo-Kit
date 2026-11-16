@@ -27,8 +27,6 @@ spec:
               value: /models
             - name: ROCm_VISIBLE_DEVICES
               value: "0"
-            - name: VLLM_ROCM_USE_AITER
-              value: "1"
             {{- if .Values.hf_token }}
             - name: HF_TOKEN
               valueFrom:
@@ -52,8 +50,6 @@ spec:
             - --enable-prefix-caching
             - --compilation_config.cudagraph_capture_sizes
             - "[1,2,4,8,16,24,32,40,48,56,64,72,80,88,96,104,112,120,128,136,144,152,160,168,176,184,192,200,208,216,224,232,240,248,256,1024,2048,4096,8192]"
-            - --speculative_config.num_speculative_tokens
-            - "3"
             - --mamba-backend
             - triton
             - --mamba-ssm-cache-dtype
@@ -62,10 +58,6 @@ spec:
             - align
             - --reasoning-parser
             - nemotron_v3
-            - --speculative_config.method
-            - dspark
-            - --speculative_config.model
-            - {{ .Values.draft_model }}
             - --enable-auto-tool-choice
             - --tool-call-parser
             - qwen3_coder
@@ -85,7 +77,7 @@ spec:
               port: http
             initialDelaySeconds: 10
             periodSeconds: 10
-            failureThreshold: 120
+            failureThreshold: 300
           readinessProbe:
             httpGet:
               path: /v1/models
