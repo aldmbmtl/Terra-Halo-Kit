@@ -28,6 +28,10 @@ _kuiper:
 # --- Nemotron 3.5 Lightning pre-configuration (locked) ---
 image: "rocm/vllm:latest"
 model: "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16"
+# Shared pod label (juno-innovations.com/model) — identical in the Spark and Halo
+# nemotron-coding plugins, independent of the checkpoint (NVFP4 vs BF16), so one
+# Service selector (e.g. a combine workload) can front both.
+model_label: "nvidia-nvidia-nemotron-3-5-lightning"
 runtimeClassName: ""
 max_model_len: 524288    # 512K context window for coding (4× original 131072)
 max_num_seqs: 1          # 1 concurrent sequence (KV pool identical: 524288 × 1 = 131072 × 4)
