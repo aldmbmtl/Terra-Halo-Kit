@@ -27,6 +27,8 @@ spec:
               value: /models
             - name: ROCm_VISIBLE_DEVICES
               value: "0"
+            - name: VLLM_ROCM_USE_AITER
+              value: "1"
             {{- if .Values.hf_token }}
             - name: HF_TOKEN
               valueFrom:
