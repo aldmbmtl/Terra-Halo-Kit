@@ -21,7 +21,7 @@ The full-precision BF16 checkpoint needs no quantized kernel, so it is the one t
 | Image | `rocm/vllm:latest` |
 | Engine flags | kv cache fp8 · Mamba backend `triton` · Mamba SSM cache float16 · `--mamba-cache-mode align` · prefix caching · `--reasoning-parser nemotron_v3` · auto-tool-choice (`qwen3_coder`) |
 | Speculative decoding | None. DSpark is not configured: the only published draft model is NVFP4 (W4A16) and is untested on ROCm |
-| Context | **524288 tokens (512K)** — the model supports up to 1M |
+| Context | **524288 tokens (512K)** — the model supports up to 1M. The BF16 `config.json` declares `max_position_embeddings` 262144, so the pod sets `VLLM_ALLOW_LONG_MAX_MODEL_LEN=1` (as NVIDIA's model card recipe does) |
 | Concurrency | **1 sequence** — sufficient for single long coding completions |
 | GPU | 1 × AMD Radeon 8060S iGPU (hostPath `/dev/kfd` + `/dev/dri`, privileged), no runtime class |
 | Node | `nodeSelector: juno-innovations.com/amd-halo: "true"` |
@@ -72,5 +72,6 @@ Hardware validation pending — this is an assembled config, not an NVIDIA-publi
 - `Failed to find a kernel that can implement the ScaledMM linear layer` = an FP8 path was re-introduced (NVFP4/FP8 checkpoint or `--quantization fp8`). Not supported on `gfx1151`. If it appears with the BF16 checkpoint, the suspect is `--kv-cache-dtype fp8`; change it to `auto`.
 - `Stochastic rounding for Mamba cache is only supported on NVIDIA CUDA platforms` = `--enable-mamba-cache-stochastic-rounding` was re-added.
 - `Invalid repository ID or local directory specified: ''` = a `--speculative_config.model` arg rendered empty.
+- `User-specified max_model_len (524288) is greater than the derived max_model_len` = the `VLLM_ALLOW_LONG_MAX_MODEL_LEN=1` env was dropped.
 - **exit 2 fast** = flag removed on `:latest` drift.
 - CrashLoopBackOff 401 = `HF_TOKEN` wiring (keep the secret key named `HF_TOKEN`).

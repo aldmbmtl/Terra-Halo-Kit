@@ -27,6 +27,10 @@ spec:
               value: /models
             - name: ROCm_VISIBLE_DEVICES
               value: "0"
+            # BF16 config.json declares max_position_embeddings=262144; NVIDIA's model
+            # card recipe sets this env to serve the longer contexts (validated to 1M).
+            - name: VLLM_ALLOW_LONG_MAX_MODEL_LEN
+              value: "1"
             {{- if .Values.hf_token }}
             - name: HF_TOKEN
               valueFrom:
