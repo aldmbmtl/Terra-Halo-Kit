@@ -53,12 +53,9 @@ spec:
             - --speculative_config.num_speculative_tokens
             - "3"
             - --mamba-backend
-            - flashinfer
+            - triton
             - --mamba-ssm-cache-dtype
             - float16
-            - --enable-mamba-cache-stochastic-rounding
-            - --mamba-cache-philox-rounds
-            - "5"
             - --mamba-cache-mode
             - align
             - --reasoning-parser
